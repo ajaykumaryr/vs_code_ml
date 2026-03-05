@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LanguaLens Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+Kannada:wght@400;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #060608;
+  --bg2: #0d0d12;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --border: #ffffff0f;
+  --border2: #ffffff18;
+  --en: #00e5ff;
+  --kn: #ff4d6d;
+  --gold: #ffd166;
+  --text: #f0f0ff;
+  --muted: #6060a0;
+  --muted2: #9090c0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── ANIMATED BG ── */
+.bg-orbs {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.orb1 { width: 400px; height: 400px; background: var(--en); top: -100px; left: -100px; animation-delay: 0s; }
+.orb2 { width: 300px; height: 300px; background: var(--kn); bottom: -100px; right: -50px; animation-delay: 3s; }
+.orb3 { width: 200px; height: 200px; background: var(--gold); top: 40%; left: 50%; animation-delay: 5s; }
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+/* ── LAYOUT ── */
+.app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+/* ── HEADER ── */
+header {
+  text-align: center;
+  padding: 48px 0 56px;
+  animation: slideDown 0.8s cubic-bezier(.16,1,.3,1) both;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.brand-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--en), var(--kn));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 30px rgba(0,229,255,0.3);
+}
+
+h1 {
+  font-size: clamp(2.5rem, 7vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(120deg, var(--en) 0%, #a78bfa 40%, var(--kn) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tagline {
+  margin-top: 10px;
+  color: var(--muted2);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── STATS BAR ── */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  text-align: center;
+  animation: fadeUp 0.6s ease both;
+}
+
+.stat-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stat-label {
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── MAIN CARD ── */
+.main-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 24px;
+  animation: fadeUp 0.8s cubic-bezier(.16,1,.3,1) 0.2s both;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--en), #a78bfa, var(--kn), transparent);
+  opacity: 0.6;
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg2);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.tab {
+  flex: 1;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted2);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+
+.tab.active {
+  background: var(--surface2);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* ── TEXT INPUT AREA ── */
+.input-section { position: relative; }
+
+.input-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.input-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lang-pill {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.lang-pill.en { background: rgba(0,229,255,0.1); color: var(--en); border-color: rgba(0,229,255,0.2); }
+.lang-pill.kn { background: rgba(255,77,109,0.1); color: var(--kn); border-color: rgba(255,77,109,0.2); }
+.lang-pill:hover { transform: scale(1.05); }
+
+.char-info {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+}
+
+.textarea-wrap { position: relative; }
+
+textarea {
+  width: 100%;
+  min-height: 180px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  padding: 18px 18px 44px 18px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+textarea:focus {
+  border-color: rgba(0,229,255,0.4);
+  box-shadow: 0 0 0 3px rgba(0,229,255,0.06), inset 0 0 30px rgba(0,229,255,0.02);
+}
+
+textarea::placeholder { color: var(--muted); }
+
+/* live typing indicator */
+.typing-indicator {
+  position: absolute;
+  bottom: 14px;
+  left: 18px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.typing-indicator.active { opacity: 1; }
+
+.typing-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--en);
+  animation: typingBounce 1s ease infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; background: #a78bfa; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; background: var(--kn); }
+
+@keyframes typingBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ── QUICK SAMPLES ── */
+.samples-section { margin-top: 16px; }
+
+.samples-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 10px;
+}
+
+.samples-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sample-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.sample-card:hover {
+  border-color: var(--border2);
+  background: var(--surface2);
+  transform: translateY(-1px);
+}
+
+.sample-card-lang {
+  font-size: 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.sample-card.en .sample-card-lang { color: var(--en); }
+.sample-card.kn .sample-card-lang { color: var(--kn); }
+
+.sample-card-text {
+  font-size: 0.78rem;
+  color: var(--muted2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── PREDICT BUTTON ── */
+.predict-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--en), #a78bfa);
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.predict-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #a78bfa, var(--kn));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.predict-btn:hover::before { opacity: 1; }
+.predict-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,229,255,0.25); }
+.predict-btn:active { transform: translateY(0); }
+
+.predict-btn .btn-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.predict-btn.loading .btn-text { opacity: 0; }
+.predict-btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin 0.6s linear infinite;
+  z-index: 2;
+}
+
+/* ── RESULT SECTION ── */
+.result-section {
+  margin-top: 24px;
+  display: none;
+  animation: resultReveal 0.5s cubic-bezier(.16,1,.3,1) both;
+}
+
+.result-section.show { display: block; }
+
+@keyframes resultReveal {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.result-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.result-lang-card {
+  background: var(--bg2);
+  border-radius: 16px;
+  padding: 24px;
+  border: 2px solid transparent;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-lang-card.winner {
+  border-color: currentColor;
+}
+
+.result-lang-card.winner::before {
+  content: '✓ DETECTED';
+  position: absolute;
+  top: 10px; right: 10px;
+  font-size: 0.55rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: currentColor;
+  color: #000;
+}
+
+.result-lang-card.en { color: var(--en); }
+.result-lang-card.kn { color: var(--kn); }
+
+.result-lang-card.winner.en {
+  background: rgba(0,229,255,0.06);
+  box-shadow: 0 0 40px rgba(0,229,255,0.1);
+}
+
+.result-lang-card.winner.kn {
+  background: rgba(255,77,109,0.06);
+  box-shadow: 0 0 40px rgba(255,77,109,0.1);
+}
+
+.card-lang-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.card-lang-native {
+  font-family: 'Noto Sans Kannada', sans-serif;
+  font-size: 1rem;
+  opacity: 0.6;
+  margin-bottom: 14px;
+}
+
+.card-prob-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.card-prob-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: currentColor;
+  transition: width 1s cubic-bezier(.16,1,.3,1);
+  width: 0%;
+}
+
+.card-prob-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+/* ── VERDICT ── */
+.verdict {
+  background: var(--bg2);
+  border-radius: 14px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid var(--border2);
+}
+
+.verdict-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.verdict-text { flex: 1; }
+
+.verdict-label {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.verdict-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.verdict-confidence {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--muted2);
+  margin-top: 2px;
+}
+
+/* ── CHAR ANALYSIS ── */
+.char-analysis {
+  background: var(--bg2);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+}
+
+.analysis-title {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.analysis-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.analysis-row:last-child { margin-bottom: 0; }
+
+.analysis-label {
+  width: 100px;
+  font-size: 0.75rem;
+  color: var(--muted2);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
+.analysis-bar-wrap { flex: 1; height: 8px; background: rgba(255,255,255,0.04); border-radius: 999px; overflow: hidden; }
+
+.analysis-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s cubic-bezier(.16,1,.3,1) 0.3s;
+  width: 0%;
+}
+
+.analysis-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted2);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── HISTORY ── */
+.history-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 24px;
+  animation: fadeUp 0.8s cubic-bezier(.16,1,.3,1) 0.35s both;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.history-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-count {
+  background: var(--surface2);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted2);
+}
+
+.clear-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.06em;
+}
+
+.clear-btn:hover { border-color: var(--kn); color: var(--kn); }
+
+.history-list { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; }
+
+.history-list::-webkit-scrollbar { width: 3px; }
+.history-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 999px; }
+
+.history-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  animation: fadeUp 0.3s ease both;
+}
+
+.history-item:hover { border-color: var(--border2); background: var(--surface2); transform: translateX(4px); }
+
+.h-badge {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.h-badge.en { background: rgba(0,229,255,0.1); color: var(--en); }
+.h-badge.kn { background: rgba(255,77,109,0.1); color: var(--kn); }
+
+.h-text {
+  font-size: 0.8rem;
+  color: var(--muted2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.h-conf {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 0.82rem;
+  color: var(--text);
+  z-index: 1000;
+  transition: transform 0.4s cubic-bezier(.16,1,.3,1);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  opacity: 0.5;
+  animation: fadeUp 0.8s ease 0.5s both;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 560px) {
+  .result-main { grid-template-columns: 1fr; }
+  .samples-grid { grid-template-columns: 1fr; }
+  .stats-bar { gap: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🔍</div>
+    </div>
+    <h1>LanguaLens Pro</h1>
+    <p class="tagline">// kannada · english · ml-powered detection</p>
+    <div class="stats-bar">
+      <div class="stat" style="animation-delay:0.3s">
+        <div class="stat-num" id="total-count">0</div>
+        <div class="stat-label">Total Scans</div>
+      </div>
+      <div class="stat" style="animation-delay:0.4s">
+        <div class="stat-num" id="en-count">0</div>
+        <div class="stat-label">English</div>
+      </div>
+      <div class="stat" style="animation-delay:0.5s">
+        <div class="stat-num" id="kn-count">0</div>
+        <div class="stat-label">Kannada</div>
+      </div>
+      <div class="stat" style="animation-delay:0.6s">
+        <div class="stat-num" id="avg-conf">—</div>
+        <div class="stat-label">Avg Confidence</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('type')">✏️ Type Text</button>
+      <button class="tab" onclick="switchTab('paste')">📋 Paste & Detect</button>
+      <button class="tab" onclick="switchTab('sample')">🎲 Random Sample</button>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-section">
+      <div class="input-toolbar">
+        <div class="input-toolbar-left">
+          <span class="lang-pill en" onclick="insertSample('en')">EN</span>
+          <span class="lang-pill kn" onclick="insertSample('kn')">ಕನ್ನಡ</span>
+        </div>
+        <span class="char-info"><span id="char-count">0</span> chars · <span id="word-count">0</span> words</span>
+      </div>
+
+      <div class="textarea-wrap">
+        <textarea id="text-input" placeholder="Type your text here… or click EN / ಕನ್ನಡ for samples&#10;&#10;Tip: Press Ctrl+Enter to detect instantly!" maxlength="3000"></textarea>
+        <div class="typing-indicator" id="typing-ind">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+
+      <!-- SAMPLES -->
+      <div class="samples-section">
+        <div class="samples-label">Quick Samples</div>
+        <div class="samples-grid">
+          <div class="sample-card en" onclick="loadSample('en1')">
+            <div class="sample-card-lang">English</div>
+            <div class="sample-card-text">Hello, how are you doing today?</div>
+          </div>
+          <div class="sample-card kn" onclick="loadSample('kn1')">
+            <div class="sample-card-lang">ಕನ್ನಡ</div>
+            <div class="sample-card-text">ಕನ್ನಡ ನಮ್ಮ ತಾಯಿ ನುಡಿ</div>
+          </div>
+          <div class="sample-card en" onclick="loadSample('en2')">
+            <div class="sample-card-lang">English</div>
+            <div class="sample-card-text">The weather is quite nice today</div>
+          </div>
+          <div class="sample-card kn" onclick="loadSample('kn2')">
+            <div class="sample-card-lang">ಕನ್ನಡ</div>
+            <div class="sample-card-text">ನಾನು ಶಾಲೆಗೆ ಹೋಗುತ್ತೇನೆ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="predict-btn" id="predict-btn" onclick="predict()">
+      <div class="btn-inner">
+        <span>⚡</span>
+        <span class="btn-text">Detect Language</span>
+      </div>
+    </button>
+
+    <!-- RESULT -->
+    <div class="result-section" id="result-section">
+
+      <div class="result-main">
+        <div class="result-lang-card en" id="en-card">
+          <div class="card-lang-name">English</div>
+          <div class="card-lang-native">English</div>
+          <div class="card-prob-bar"><div class="card-prob-fill" id="en-bar"></div></div>
+          <div class="card-prob-value" id="en-prob">0%</div>
+        </div>
+        <div class="result-lang-card kn" id="kn-card">
+          <div class="card-lang-name">Kannada</div>
+          <div class="card-lang-native">ಕನ್ನಡ</div>
+          <div class="card-prob-bar"><div class="card-prob-fill" id="kn-bar"></div></div>
+          <div class="card-prob-value" id="kn-prob">0%</div>
+        </div>
+      </div>
+
+      <div class="verdict">
+        <div class="verdict-icon" id="verdict-icon">🔍</div>
+        <div class="verdict-text">
+          <div class="verdict-label">Final Verdict</div>
+          <div class="verdict-value" id="verdict-value">—</div>
+          <div class="verdict-confidence" id="verdict-conf">confidence: —</div>
+        </div>
+      </div>
+
+      <div class="char-analysis">
+        <div class="analysis-title">Character Analysis</div>
+        <div class="analysis-row">
+          <div class="analysis-label">Kannada chars</div>
+          <div class="analysis-bar-wrap"><div class="analysis-bar" id="kn-char-bar" style="background: var(--kn)"></div></div>
+          <div class="analysis-val" id="kn-char-val">0%</div>
+        </div>
+        <div class="analysis-row">
+          <div class="analysis-label">English chars</div>
+          <div class="analysis-bar-wrap"><div class="analysis-bar" id="en-char-bar" style="background: var(--en)"></div></div>
+          <div class="analysis-val" id="en-char-val">0%</div>
+        </div>
+        <div class="analysis-row">
+          <div class="analysis-label">Numbers</div>
+          <div class="analysis-bar-wrap"><div class="analysis-bar" id="num-bar" style="background: var(--gold)"></div></div>
+          <div class="analysis-val" id="num-val">0%</div>
+        </div>
+        <div class="analysis-row">
+          <div class="analysis-label">Symbols</div>
+          <div class="analysis-bar-wrap"><div class="analysis-bar" id="sym-bar" style="background: #a78bfa"></div></div>
+          <div class="analysis-val" id="sym-val">0%</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-card">
+    <div class="history-header">
+      <div class="history-title">
+        Recent Predictions
+        <span class="history-count" id="history-count">0</span>
+      </div>
+      <button class="clear-btn" onclick="clearHistory()">Clear All</button>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="empty-state">No predictions yet — try detecting some text!</div>
+    </div>
+  </div>
+
+  <footer>
+    scikit-learn · TF-IDF · char n-grams(1,5) · LogisticRegression · Flask API
+  </footer>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── DATA ──
+  const SAMPLES = {
+    en1: "Hello, how are you doing today?",
+    en2: "The weather is quite nice today, isn't it wonderful?",
+    kn1: "ಕನ್ನಡ ನಮ್ಮ ತಾಯಿ ನುಡಿ, ಇದು ಅತ್ಯಂತ ಸುಂದರವಾದ ಭಾಷೆ.",
+    kn2: "ನಾನು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಹೋಗುತ್ತೇನೆ ಮತ್ತು ಓದುತ್ತೇನೆ."
+  };
+
+  const EN_SAMPLES = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Learning machine learning is incredibly rewarding.",
+    "How are you doing today my friend?",
+    "Artificial intelligence is changing the world.",
+    "The weather is beautiful outside today."
+  ];
+
+  const KN_SAMPLES = [
+    "ಕನ್ನಡ ನಮ್ಮ ತಾಯಿ ನುಡಿ, ಇದು ಅತ್ಯಂತ ಸುಂದರವಾದ ಭಾಷೆ.",
+    "ನಾನು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ಹೋಗುತ್ತೇನೆ ಮತ್ತು ಓದುತ್ತೇನೆ.",
+    "ಬೆಂಗಳೂರು ಕರ್ನಾಟಕದ ರಾಜಧಾನಿ ನಗರವಾಗಿದೆ.",
+    "ಕನ್ನಡ ಭಾಷೆ ತುಂಬಾ ಶ್ರೀಮಂತ ಸಾಹಿತ್ಯವನ್ನು ಹೊಂದಿದೆ.",
+    "ನಮ್ಮ ದೇಶ ಭಾರತ ವೈವಿಧ್ಯತೆಯಲ್ಲಿ ಏಕತೆಯನ್ನು ಹೊಂದಿದೆ."
+  ];
+
+  // ── STATE ──
+  let history = [];
+  let stats = { total: 0, en: 0, kn: 0, totalConf: 0 };
+  let typingTimer;
+  let activeTab = 'type';
+
+  // ── TEXTAREA ──
+  const textarea = document.getElementById('text-input');
+
+  textarea.addEventListener('input', () => {
+    updateCounts();
+    // show typing indicator
+    const ind = document.getElementById('typing-ind');
+    ind.classList.add('active');
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => ind.classList.remove('active'), 1000);
+  });
+
+  textarea.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); predict(); }
+  });
+
+  function updateCounts() {
+    const val = textarea.value;
+    document.getElementById('char-count').textContent = val.length;
+    const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+    document.getElementById('word-count').textContent = words;
+  }
+
+  // ── TABS ──
+  function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['type','paste','sample'][i] === tab);
+    });
+
+    if (tab === 'sample') {
+      const all = [...EN_SAMPLES, ...KN_SAMPLES];
+      textarea.value = all[Math.floor(Math.random() * all.length)];
+      updateCounts();
+      showToast('🎲 Random sample loaded!');
+    } else if (tab === 'paste') {
+      textarea.value = '';
+      textarea.focus();
+      showToast('📋 Paste your text and click Detect!');
+    } else {
+      textarea.focus();
+    }
+  }
+
+  // ── SAMPLES ──
+  function loadSample(key) {
+    textarea.value = SAMPLES[key];
+    updateCounts();
+    textarea.focus();
+  }
+
+  function insertSample(lang) {
+    const arr = lang === 'en' ? EN_SAMPLES : KN_SAMPLES;
+    textarea.value = arr[Math.floor(Math.random() * arr.length)];
+    updateCounts();
+    showToast(lang === 'en' ? '🇬🇧 English sample loaded!' : '🇮🇳 Kannada sample loaded!');
+  }
+
+  // ── CHAR ANALYSIS ──
+  function analyzeChars(text) {
+    const total = text.length || 1;
+    const kn = (text.match(/[\u0C80-\u0CFF]/g) || []).length;
+    const en = (text.match(/[a-zA-Z]/g) || []).length;
+    const num = (text.match(/[0-9]/g) || []).length;
+    const sym = total - kn - en - num - (text.match(/\s/g) || []).length;
+    return {
+      kn: Math.round(kn / total * 100),
+      en: Math.round(en / total * 100),
+      num: Math.round(num / total * 100),
+      sym: Math.max(0, Math.round(sym / total * 100))
+    };
+  }
+
+  // ── BACKEND CALL ──
+  async function callBackend(text) {
+    const res = await fetch("http://127.0.0.1:5000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) throw new Error("Backend error " + res.status);
+    return await res.json();
+  }
+
+  // ── SHOW RESULT ──
+  function showResult(language, confidence, text) {
+    const section = document.getElementById('result-section');
+    section.className = 'result-section show';
+
+    const isEN = language === 'English';
+    const enProb = isEN ? confidence : (1 - confidence);
+    const knProb = isEN ? (1 - confidence) : confidence;
+
+    // cards
+    const enCard = document.getElementById('en-card');
+    const knCard = document.getElementById('kn-card');
+    enCard.className = 'result-lang-card en' + (isEN ? ' winner' : '');
+    knCard.className = 'result-lang-card kn' + (!isEN ? ' winner' : '');
+
+    setTimeout(() => {
+      document.getElementById('en-bar').style.width = Math.round(enProb * 100) + '%';
+      document.getElementById('kn-bar').style.width = Math.round(knProb * 100) + '%';
+    }, 100);
+
+    document.getElementById('en-prob').textContent = Math.round(enProb * 100) + '%';
+    document.getElementById('kn-prob').textContent = Math.round(knProb * 100) + '%';
+
+    // verdict
+    document.getElementById('verdict-icon').textContent = isEN ? '🇬🇧' : '🇮🇳';
+    document.getElementById('verdict-value').textContent = language;
+    document.getElementById('verdict-conf').textContent = `confidence: ${Math.round(confidence * 100)}%`;
+
+    // char analysis
+    const ca = analyzeChars(text);
+    setTimeout(() => {
+      document.getElementById('kn-char-bar').style.width = ca.kn + '%';
+      document.getElementById('en-char-bar').style.width = ca.en + '%';
+      document.getElementById('num-bar').style.width = ca.num + '%';
+      document.getElementById('sym-bar').style.width = ca.sym + '%';
+    }, 300);
+    document.getElementById('kn-char-val').textContent = ca.kn + '%';
+    document.getElementById('en-char-val').textContent = ca.en + '%';
+    document.getElementById('num-val').textContent = ca.num + '%';
+    document.getElementById('sym-val').textContent = ca.sym + '%';
+  }
+
+  // ── PREDICT ──
+  async function predict() {
+    const text = textarea.value.trim();
+    if (!text) {
+      textarea.focus();
+      textarea.style.borderColor = 'rgba(255,77,109,0.6)';
+      setTimeout(() => textarea.style.borderColor = '', 1000);
+      showToast('⚠️ Please enter some text first!');
+      return;
+    }
+
+    const btn = document.getElementById('predict-btn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+      const { language, confidence } = await callBackend(text);
+      showResult(language, confidence, text);
+      addToHistory(text, language, confidence);
+      updateStats(language, confidence);
+      showToast(`✅ Detected: ${language} (${Math.round(confidence * 100)}%)`);
+    } catch (err) {
+      showToast('❌ Backend error! Is app.py running?');
+      console.error(err);
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
+  }
+
+  // ── STATS ──
+  function updateStats(language, confidence) {
+    stats.total++;
+    if (language === 'English') stats.en++;
+    else stats.kn++;
+    stats.totalConf += confidence;
+
+    document.getElementById('total-count').textContent = stats.total;
+    document.getElementById('en-count').textContent = stats.en;
+    document.getElementById('kn-count').textContent = stats.kn;
+    document.getElementById('avg-conf').textContent =
+      Math.round((stats.totalConf / stats.total) * 100) + '%';
+  }
+
+  // ── HISTORY ──
+  function addToHistory(text, lang, conf) {
+    history.unshift({ text, lang, conf });
+    if (history.length > 10) history.pop();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('history-list');
+    document.getElementById('history-count').textContent = history.length;
+
+    if (history.length === 0) {
+      list.innerHTML = '<div class="empty-state">No predictions yet — try detecting some text!</div>';
+      return;
+    }
+
+    list.innerHTML = history.map((item, i) => `
+      <div class="history-item" onclick="reloadHistory(${i})" style="animation-delay:${i*0.04}s">
+        <div class="h-badge ${item.lang === 'English' ? 'en' : 'kn'}">
+          ${item.lang === 'English' ? 'EN' : 'KN'}
+        </div>
+        <div class="h-text">${item.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+        <div class="h-conf">${Math.round(item.conf * 100)}%</div>
+      </div>
+    `).join('');
+  }
+
+  function reloadHistory(i) {
+    textarea.value = history[i].text;
+    updateCounts();
+    showResult(history[i].lang, history[i].conf, history[i].text);
+    showToast('📂 Loaded from history!');
+  }
+
+  function clearHistory() {
+    history = [];
+    renderHistory();
+    showToast('🗑️ History cleared!');
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
